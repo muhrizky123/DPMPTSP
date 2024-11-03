@@ -11,7 +11,7 @@ st.set_page_config(page_title = "DPMPTSP Dashboard", layout="wide")
 # Header
 t1, t2 = st.columns((0.07,1))
 
-# t1.image('images/dpmptsp_logo2.jpeg', width = 100)
+t1.image('images/dpmptsp_logo2.jpeg', width = 100)
 t2.title('Dashboard Tipologi DPMPTSP Jakarta')
 t2.markdown("**tel :** 1500164 / (021)1500164 **| website :** https://pelayanan.jakarta.go.id/ **")
 
@@ -66,8 +66,6 @@ with st.spinner('Updating Report .... ') :
     c4.metric(label = "Masih diproses", value = masih_diproses, delta=f"{round(masih_perc.iloc[0], 1)}%")
     c5.metric(label = "Ditolak & dibatalkan", value = ditolak_dibatalkan, delta=f"{round(ditolak_perc.iloc[0], 1)}%")
 
-    st.markdown("---x")
-    st.markdown("---")
     st.markdown("---")
 
     # Layout untuk grafik piechart dan klasifikasi izin
@@ -76,7 +74,37 @@ with st.spinner('Updating Report .... ') :
     pcdf = pd.read_excel('sp_izin.xlsx', sheet_name = 'tot_bidang2')
     pcdf = pcdf[pcdf['service_point']==sp]
 
-    fig1 = go.Figure(data = [go.Pie(labels =pcdf['bidang_recode'], values = pcdf['total_diajukan'], hole = .3, marker = dict(colors = ['#264653']))])
+    # Define base colors for pie chart that will be used for bar chart too
+    base_colors = {
+        'Pelayanan Administrasi': '#FF0000',  # Red
+        'Kesehatan': '#0000FF',  # Blue  
+        'Pekerjaan Umum Dan Penataan Ruang': '#008000', # Green
+        'Kesatuan Bangsa Dan Politik Dalam Negeri': '#FFD700', # Gold
+        'Lingkungan Hidup': '#800080', # Purple
+        'Perdagangan': '#FFA500', # Orange
+        'Pendidikan': '#00FFFF', # Cyan
+        'Perhubungan': '#FF00FF', # Magenta
+        'Sosial': '#008080', # Teal
+        'Tenaga Kerja': '#800000', # Maroon
+        'Pariwisata': '#000080', # Navy
+        'Pertanian': '#808000', # Olive
+        'Kelautan Dan Perikanan': '#FF69B4', # Hot Pink
+        'Kehutanan': '#4B0082', # Indigo
+        'Esdm': '#DC143C', # Crimson
+        'Kepemudaan dan Keolahragaan': '#9400D3', # Dark Violet
+        'Ketenteraman, ketertiban Umum dan Pelindungan Masyarakat': '#2F4F4F', # Dark Slate Gray
+        'Pertanahan Yang Menjadi Kewenangan Daerah': '#8B4513', # Saddle Brown
+        'Perumahan Rakyat Dan Kawasan Permukiman': '#4682B4' # Steel Blue
+    }
+
+    # Create color list based on pcdf bidang order
+    pie_colors = [base_colors[bidang] for bidang in pcdf['bidang_recode']]
+
+    fig1 = go.Figure(data = [go.Pie(labels=pcdf['bidang_recode'], 
+                                   values=pcdf['total_diajukan'], 
+                                   hole=.3,
+                                   marker=dict(colors=pie_colors))])
+    
     fig1.update_layout(title_text = "Kategori Bidang yang Dominan", title_x = 0, margin = dict(l=0, r=10, b=10))
 
     cidf = pd.read_excel('sp_izin.xlsx', sheet_name = 'cluster')
@@ -150,19 +178,14 @@ with st.spinner('Updating Report .... ') :
 
     g5 = st.columns(1)
 
+    
+    st.markdown("---")
+    st.markdown("## Distribusi Bidang Perizinan")
 
-    st.markdown("---")
-    st.markdown("---")
-    st.markdown("---")
-    st.markdown("---")
     # Metrics setting and rendering
     wdf = pd.read_excel('sp_izin.xlsx', sheet_name = 'wilayah_derivative')
     wdf = wdf[wdf['service_point']==sp]
-    st.markdown("---"+sp)
-    st.markdown("---"+wdf['service_point'])
 
-    # sp_izin_df = pd.read_excel('sp_izin.xlsx',sheet_name = 'wilayah_derivative')
-    # sp = st.selectbox('Choose Service Point', sp_izin_df, help = 'Filter report to show only one service point of penanaman modal')
 
     # Tentukan kolom `sub_region` berdasarkan level wilayah
     if level == 'kecamatan':
@@ -172,137 +195,308 @@ with st.spinner('Updating Report .... ') :
     else:
         sub_region_col = 'kota'
     
-
-    # Filter data untuk service_point yang dipilih
-    # filtered_data = tot_status_df[tot_status_df['service_point'] == sp]
-
-    # Hitung persentase `total_selesai` untuk setiap bidang di setiap `sub_region`
-    # sub_region_data = (
-    #     filtered_data.groupby([sub_region_col, 'service_point'])['total_selesai']
-    #     .sum()
-    #     .groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))  # Menghitung persentase
-    #     .reset_index(name='percent_selesai')
-    # )
-
-    # # Buat grafik stack bar horizontal
-    # fig = go.Figure()
-
-    # # Tambahkan data ke grafik untuk setiap bidang recode
-    # for bidang in sub_region_data['service_point'].unique():
-    #     bidang_data = sub_region_data[sub_region_data['service_point'] == bidang]
-    #     fig.add_trace(go.Bar(
-    #         y=bidang_data[sub_region_col],
-    #         x=bidang_data['percent_selesai'],
-    #         name=bidang,
-    #         orientation='h'
-    #     ))
-
-    # fig.update_layout(
-    #     barmode='stack',
-    #     title='Persentase Total Selesai per Bidang di Setiap Sub-Region',
-    #     xaxis=dict(title='Persentase'),
-    #     yaxis=dict(title=sub_region_col),
-    #     height=500
-    # )
-
-    # # Tampilkan grafik di Streamlit
-    # st.plotly_chart(fig, use_container_width=True)
-
-
-# ... existing code ...
-
-    st.markdown("---")
-    st.markdown("---")
-    st.markdown("---")
-    st.markdown("---")
-# ... existing code ...
-# ... existing code ...
-# ... existing code ...
-
-st.markdown("---")
-st.markdown("## Persentase Izin Kesehatan dan PU-PR")
-
 # Baca data wilayah
 wdf = pd.read_excel('sp_izin.xlsx', sheet_name='wilayah_derivative')
 selected_row = wdf[wdf['service_point'] == sp].iloc[0]
 level_wilayah = selected_row['Level_wilayah']
 
-if level_wilayah == 'kec':
-    kecamatan = selected_row['kecamatan']
-    filtered_data = wdf[wdf['kecamatan'] == kecamatan]
-    
-    # Hitung total dan persentase
-    filtered_data['total'] = filtered_data['Kesehatan'] + filtered_data['Pekerjaan Umum Dan Penataan Ruang']
-    filtered_data['pct_kesehatan'] = filtered_data['Kesehatan'] / filtered_data['total'] * 100
-    filtered_data['pct_pupr'] = filtered_data['Pekerjaan Umum Dan Penataan Ruang'] / filtered_data['total'] * 100
+# Daftar kolom bidang
+bidang_cols = ['Esdm', 'Kehutanan', 'Kelautan Dan Perikanan', 'Kepemudaan dan Keolahragaan',
+               'Kesatuan Bangsa Dan Politik Dalam Negeri', 'Kesehatan', 
+               'Ketenteraman, ketertiban Umum dan Pelindungan Masyarakat',
+               'Lingkungan Hidup', 'Pariwisata', 'Pekerjaan Umum Dan Penataan Ruang',
+               'Pelayanan Administrasi', 'Pendidikan', 'Perdagangan', 'Perhubungan',
+               'Pertanahan Yang Menjadi Kewenangan Daerah', 'Pertanian',
+               'Perumahan Rakyat Dan Kawasan Permukiman', 'Sosial', 'Tenaga Kerja']
 
-    # Buat horizontal stack bar chart
+# Fungsi helper untuk mengurutkan bidang
+def sort_bidang_by_total(data, bidang_cols):
+    bidang_totals = {bidang: data[bidang].sum() for bidang in bidang_cols}
+    sorted_bidang = sorted(bidang_totals.items(), key=lambda x: x[1], reverse=True)
+    return [b[0] for b in sorted_bidang if b[1] > 0]
+
+if level_wilayah == 'Kel':
+    st.info("Data sama dengan Pie Chart diatas")
+
+elif level_wilayah == 'Dinas':
+    # Data untuk level dinas
+    dinas = selected_row['dinas']
+    dinas_data = wdf[wdf['dinas'] == dinas]
+    
+    # Agregasi data per kota
+    agg_data = dinas_data.groupby('kota')[bidang_cols].sum().reset_index()
+    agg_data['total'] = agg_data[bidang_cols].sum(axis=1)
+    
+    # Hitung total untuk setiap bidang
+    bidang_totals = {bidang: agg_data[bidang].sum() for bidang in bidang_cols}
+    sorted_bidang = sorted(bidang_totals.items(), key=lambda x: x[1], reverse=True)
+    active_bidang = [b[0] for b in sorted_bidang if b[1] > 0]
+    
     fig = go.Figure()
-    fig.add_trace(go.Bar(
-        y=filtered_data['service_point'],
-        x=filtered_data['pct_kesehatan'],
-        name='Kesehatan',
-        orientation='h',
-        text=[f'{x:.1f}%' for x in filtered_data['pct_kesehatan']],
-        textposition='auto'
-    ))
-    fig.add_trace(go.Bar(
-        y=filtered_data['service_point'],
-        x=filtered_data['pct_pupr'],
-        name='PU-PR',
-        orientation='h',
-        text=[f'{x:.1f}%' for x in filtered_data['pct_pupr']],
-        textposition='auto'
-    ))
-
-    fig.update_layout(
-        barmode='stack',
-        title=f'Persentase Izin di Kecamatan {kecamatan}',
-        xaxis_title='Persentase (%)',
-        height=400
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
+    for idx, bidang in enumerate(active_bidang):
+        fig.add_trace(go.Bar(
+            y=agg_data['kota'],
+            x=agg_data[bidang] / agg_data['total'] * 100,
+            name=bidang,
+            orientation='h',
+            text=[f'{x:.1f}% ({int(y)})' for x, y in zip(agg_data[bidang] / agg_data['total'] * 100, agg_data[bidang])],
+            textposition='inside',
+            marker_color=base_colors[bidang],
+            legendgroup=bidang,
+            showlegend=True
+        ))
+    title_text = f'Distribusi Bidang Perizinan untuk Dinas {dinas}'
 
 elif level_wilayah == 'Kota':
+    # Data untuk level kota
     kota = selected_row['kota']
     kota_data = wdf[wdf['kota'] == kota]
+    agg_data = kota_data.groupby('kecamatan')[bidang_cols].sum().reset_index()
+    agg_data['total'] = agg_data[bidang_cols].sum(axis=1)
     
-    # Agregasi data per kecamatan
-    kec_summary = kota_data.groupby('kecamatan').agg({
-        'Kesehatan': 'sum',
-        'Pekerjaan Umum Dan Penataan Ruang': 'sum'
-    }).reset_index()
+    bidang_totals = {bidang: agg_data[bidang].sum() for bidang in bidang_cols}
+    sorted_bidang = sorted(bidang_totals.items(), key=lambda x: x[1], reverse=True)
+    active_bidang = [b[0] for b in sorted_bidang if b[1] > 0]
     
-    # Hitung total dan persentase
-    kec_summary['total'] = kec_summary['Kesehatan'] + kec_summary['Pekerjaan Umum Dan Penataan Ruang']
-    kec_summary['pct_kesehatan'] = kec_summary['Kesehatan'] / kec_summary['total'] * 100
-    kec_summary['pct_pupr'] = kec_summary['Pekerjaan Umum Dan Penataan Ruang'] / kec_summary['total'] * 100
-
-    # Buat horizontal stack bar chart
     fig = go.Figure()
-    fig.add_trace(go.Bar(
-        y=kec_summary['kecamatan'],
-        x=kec_summary['pct_kesehatan'],
-        name='Kesehatan',
-        orientation='h',
-        text=[f'{x:.1f}%' for x in kec_summary['pct_kesehatan']],
-        textposition='auto'
-    ))
-    fig.add_trace(go.Bar(
-        y=kec_summary['kecamatan'],
-        x=kec_summary['pct_pupr'],
-        name='PU-PR',
-        orientation='h',
-        text=[f'{x:.1f}%' for x in kec_summary['pct_pupr']],
-        textposition='auto'
-    ))
+    for idx, bidang in enumerate(active_bidang):
+        fig.add_trace(go.Bar(
+            y=agg_data['kecamatan'],
+            x=agg_data[bidang] / agg_data['total'] * 100,
+            name=bidang,
+            orientation='h',
+            text=[f'{x:.1f}% ({int(y)})' for x, y in zip(agg_data[bidang] / agg_data['total'] * 100, agg_data[bidang])],
+            textposition='inside',
+            marker_color=base_colors[bidang],
+            legendgroup=bidang,
+            showlegend=True
+        ))
+    title_text = f'Distribusi Bidang Perizinan di Kota {kota}'
 
+elif level_wilayah == 'Kec':
+    # Data untuk level kecamatan
+    kecamatan = selected_row['kecamatan']
+    kec_data = wdf[wdf['kecamatan'] == kecamatan]
+    kec_data['total'] = kec_data[bidang_cols].sum(axis=1)
+    
+    # Tambahkan informasi cluster
+    cidf = pd.read_excel('sp_izin.xlsx', sheet_name='cluster')
+    kec_data = kec_data.merge(cidf[['service_point', 'Cluster']], on='service_point', how='left')
+    
+    bidang_totals = {bidang: kec_data[bidang].sum() for bidang in bidang_cols}
+    sorted_bidang = sorted(bidang_totals.items(), key=lambda x: x[1], reverse=True)
+    active_bidang = [b[0] for b in sorted_bidang if b[1] > 0]
+    
+    fig = go.Figure()
+    for idx, bidang in enumerate(active_bidang):
+        values = kec_data[bidang].fillna(0)
+        percentages = (values / kec_data['total'] * 100).fillna(0)
+        
+        text_labels = [f'{x:.1f}% ({int(y)})' if not pd.isna(y) else '0% (0)' 
+                      for x, y in zip(percentages, values)]
+        
+        fig.add_trace(go.Bar(
+            y=kec_data['service_point'],
+            x=percentages,
+            name=bidang,
+            orientation='h',
+            text=text_labels,
+            textposition='inside',
+            marker_color=base_colors[bidang],
+            legendgroup=bidang,
+            showlegend=True
+        ))
+
+    # Tambahkan anotasi cluster
+    for idx, row in kec_data.iterrows():
+        fig.add_annotation(
+            x=100,
+            y=row['service_point'],
+            text=f"Cluster {int(row['Cluster'])}",
+            xanchor='left',
+            yanchor='middle',
+            showarrow=False,
+            xshift=10,
+            font=dict(size=12)
+        )
+    
+    title_text = f'Distribusi Bidang Perizinan di Kecamatan {kecamatan}'
+
+if level_wilayah != 'Kel':
+    # Pengaturan layout yang sama untuk semua level
     fig.update_layout(
         barmode='stack',
-        title=f'Persentase Izin per Kecamatan di {kota}',
+        title=title_text,
         xaxis_title='Persentase (%)',
-        height=400
+        height=800,
+        bargap=0.2,
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.2,
+            xanchor="center",
+            x=0.5,
+            bgcolor='rgba(255, 255, 255, 0.8)',
+            bordercolor='rgba(0, 0, 0, 0.3)',
+            borderwidth=1,
+            itemsizing='constant',
+            itemwidth=40
+        ),
+        margin=dict(b=150),
+        uniformtext=dict(mode='hide', minsize=8)
     )
     
+    # Tambahkan button untuk toggle legend
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                buttons=list([
+                    dict(
+                        args=[{"visible": [True] * len(fig.data)}],
+                        label="Show All",
+                        method="restyle"
+                    ),
+                    dict(
+                        args=[{"visible": [False] * len(fig.data)}],
+                        label="Hide All",
+                        method="restyle"
+                    )
+                ]),
+                pad={"r": 10, "t": 10},
+                showactive=True,
+                x=0.11,
+                xanchor="left",
+                y=1.1,
+                yanchor="top"
+            ),
+        ]
+    )
+
     st.plotly_chart(fig, use_container_width=True)
+
+
+with st.expander("## Distribusi Total Perizinan di Sub-wilayah", expanded=False):
+    # Initialize sub_data as None
+    sub_data = None
+
+    if level_wilayah == 'Kota':
+        # For Kota level, show Kelurahan data
+        kecamatan = wdf[wdf['kota'] == selected_row['kota']]['kecamatan'].unique()
+        sub_data = wdf[wdf['kecamatan'].isin(kecamatan)].copy()
+        group_col = 'kelurahan'
+        title_text = f'Distribusi Total Perizinan per Kelurahan di {selected_row["kota"]}'
+    elif level_wilayah == 'Dinas':
+        # For DPMPTSP DKI JAKARTA, show aggregated Kecamatan data
+        sub_data = wdf.copy()
+        group_col = 'kecamatan'
+        title_text = 'Distribusi Total Perizinan per Kecamatan di DKI Jakarta'
+
+    if sub_data is not None:
+        # Calculate total for all bidang_cols
+        sub_data['total_izin'] = sub_data[bidang_cols].sum(axis=1)
+        
+        # Aggregate data by sub-region
+        agg_sub_data = sub_data.groupby(group_col)['total_izin'].sum().reset_index()
+        
+        # Sort by total
+        agg_sub_data = agg_sub_data.sort_values('total_izin', ascending=False)
+        
+        # Rename columns for display
+        agg_sub_data.columns = ['Wilayah', 'Total Perizinan']
+        
+        # Format the Total Perizinan column with thousands separator
+        agg_sub_data['Total Perizinan'] = agg_sub_data['Total Perizinan'].apply(lambda x: f"{int(x):,}")
+        
+        # Display title
+        st.markdown(f"### {title_text}")
+        
+        # Display table with styling
+        st.dataframe(
+            agg_sub_data,
+            height=400,
+            hide_index=True,
+            use_container_width=True,
+            column_config={
+                "Wilayah": st.column_config.TextColumn(
+                    "Wilayah",
+                    width="medium",
+                ),
+                "Total Perizinan": st.column_config.TextColumn(
+                    "Total Perizinan",
+                    width="medium",
+                )
+            },
+            column_order=["Wilayah", "Total Perizinan"]
+        )
+
+        # ... existing code ...
+
+# Add new section for detailed permits
+# Add new section for detailed permits
+# ... existing code ...
+
+# Add new section for detailed permits
+with st.expander("## Detail Izin berdasarkan Bidang", expanded=False):
+    try:
+        # Read the data
+        izin_detail_df = pd.read_excel('sp_izin.xlsx', sheet_name='nama_izin')
+        
+        # Filter data based on selected service point
+        filtered_izin = izin_detail_df[izin_detail_df['service_point'] == sp].copy()
+        
+        if not filtered_izin.empty:
+            # Ensure columns exist and handle missing data
+            required_columns = ['service_point', 'bidang_recode', 'nama_izin', 'total_selesai']
+            if all(col in filtered_izin.columns for col in required_columns):
+                # Group by bidang and nama_izin
+                grouped_izin = (filtered_izin
+                    .groupby(['bidang_recode', 'nama_izin'])
+                    .agg({'total_selesai': 'sum'})
+                    .reset_index()
+                    .sort_values('total_selesai', ascending=False)
+                )
+                
+                # Display the table
+                st.markdown(f"### Detail Izin di {sp}")
+                st.dataframe(
+                    grouped_izin,
+                    height=400,
+                    hide_index=True,
+                    use_container_width=True,
+                    column_config={
+                        "bidang_recode": st.column_config.TextColumn(
+                            "Bidang",
+                            width="medium",
+                        ),
+                        "nama_izin": st.column_config.TextColumn(
+                            "Nama Izin",
+                            width="large",
+                        ),
+                        "total_selesai": st.column_config.NumberColumn(
+                            "Total Izin Selesai",
+                            width="small",
+                            format="%d"
+                        )
+                    }
+                )
+                
+                # Display summary statistics
+                st.markdown("### Ringkasan")
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    st.metric("Total Jenis Izin", len(grouped_izin['nama_izin'].unique()))
+                with col2:
+                    st.metric("Total Bidang", len(grouped_izin['bidang_recode'].unique()))
+                with col3:
+                    st.metric("Total Izin Selesai", int(grouped_izin['total_selesai'].sum()))
+            else:
+                st.error("Format data tidak sesuai. Mohon periksa kolom yang diperlukan.")
+        else:
+            st.info("Tidak ada data izin untuk service point ini")
+            
+    except Exception as e:
+        st.error(f"Terjadi kesalahan: {str(e)}")
